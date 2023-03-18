@@ -1,0 +1,96 @@
+# main.yml
+---
+- name: set datastore fact
+  set_fact:
+    datastore: '{{site | upper }}-{{pod | upper }}-{{ item[tier|lower]}}'
+  with_items:
+    - "{{ datastores }}"
+- debug:
+    msg: "datastore is {{ datastore }}"
+
+- name: set prod_dvs fact
+  set_fact:
+    prod_dvs: '{{ item[pod|lower] }}'
+  with_items:
+    - "{{ prod_dvsd }}"
+- debug:
+    msg: "prod_dvs is {{ prod_dvs }}"
+
+- name: set vcenter_server fact
+  set_fact:
+    vcenter_server: '{{ item[pod|lower] }}'
+  with_items:
+    - "{{ vcenter_servers }}"
+- debug:
+    msg: "vcenter_server is {{ vcenter_server }}"
+
+- name: set vcenter_user fact
+  set_fact:
+    vcenter_user: '{{ item[pod|lower] }}'
+  with_items:
+    - "{{ vcenter_users }}"
+- debug:
+    msg: "vcenter_user is {{ vcenter_user }}"
+
+- name: set vcenter_pass fact
+  set_fact:
+    vcenter_pass: '{{ item[pod|lower] }}'
+  no_log: True
+  with_items:
+    - "{{ vcenter_secrets }}"
+
+- name: set datacenter fact
+  set_fact:
+    vm_datacenter: "ESN-{{ pod | upper }}"
+
+- debug:
+    msg: "vm_datacenter target is {{ vm_datacenter }}"
+
+- name: set cluster fact
+  set_fact:
+    vm_cluster: "{{ site | upper }}-{{ pod | upper }}-{{ cluster }}"
+
+- debug:
+    msg: "cluster target is {{ vm_cluster }}"
+
+- name: check if additional disks should be added
+  set_fact:
+    add_hw: true
+  when: not(
+        (add_disk_array is defined)
+        or
+        (add_disk_array | trim != '')
+      )
+
+
+#
+
+- name: vm_name and eth0_domain combined
+  set_fact:
+    vm_name_fqdn: "{{ vm_name }}.{{ eth0_domain }}"
+  when: eth0_domain is defined and eth0_domain != ''
+
+- name: vm_name and eth0_domain not combined
+  set_fact:
+    vm_name_fqdn: "{{ vm_name }}"
+  when: eth0_domain is not defined and eth0_domain == ''
+
+- name: set static_ip bool fact
+  set_fact:
+    static: "{{ static_ip | bool }}"
+
+#check input
+- include_tasks: check_input_vars.yml
+
+- include_tasks: check_static_ip.yml
+  when: (static == 'true')
+#- include_tasks: check_dynamic_ip.yml
+#  when: not static_ip | d() | bool
+- name: set add_hw bool fact
+  set_fact:
+    add_hw: true
+  when: add_disk_array is defined and add_disk_array != ''
+
+- include_tasks: check_disk_array.yml
+  when: add_hw
+

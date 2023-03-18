@@ -1,0 +1,6 @@
+# main.yml
+---
+- include_tasks: sip_vm_jdom.yml
+  when: join_domain | bool
+- include_tasks: dip_vm_wg.yml
+  when: not join_domain | bool

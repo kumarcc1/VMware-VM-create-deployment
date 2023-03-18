@@ -1,0 +1,37 @@
+# check_static_ip.yml
+---
+- name: eth0_ip is valid ip
+  assert:
+    that:
+    - eth0_ip | ipaddr('address')
+    msg: "Set the value 'eth0_ip' input."
+
+- name: eth0_mask is valid mask
+  assert:
+    that:
+    - eth0_mask | ipaddr('netmask')
+    msg: "Set the value 'eth0_mask' input."
+
+- name: eth0_gw is valid gateway
+  assert:
+    that:
+    - eth0_gw is defined and eth0_gw != ''
+    msg: "Set the value 'eth0_gw' input."
+
+- name: eth0_dns_0 should be defined
+  assert:
+    that:
+    - eth0_dns_0 is defined and eth0_dns_0 != ''
+    msg: "Set the value 'eth0_dns_0' input."
+
+- name: eth0_dns_1 should be defined
+  assert:
+    that:
+    - eth0_dns_1 is defined and eth0_dns_1 != ''
+    msg: "Set the value 'eth0_dns_1' input."
+
+- name: eth0_domain should be defined
+  assert:
+    that:
+    - eth0_domain is defined and eth0_domain != ''
+    msg: "Set the value 'eth0_domain' input."

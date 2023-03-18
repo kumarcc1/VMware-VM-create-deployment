@@ -1,0 +1,4 @@
+# main.yml
+---
+- include_tasks: add_disk.yml
+  when: (add_disk_array is defined and add_disk_array != '')

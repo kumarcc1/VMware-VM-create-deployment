@@ -1,0 +1,7 @@
+# check_dynamic_ip.yml
+---
+- name: eth0_ip should be not be defined
+  assert:
+    that:
+    - eth0_ip is not defined and eth0_ip != ''
+    msg: "The the value 'eth0_ip' input."

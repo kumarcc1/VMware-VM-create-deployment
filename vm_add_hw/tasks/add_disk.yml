@@ -1,0 +1,14 @@
+#need to be changed
+- name: safety check that input not contains illeagal characters
+  set_fact:
+    disk_array: "{{ add_disk_array | regex_replace(' ') }}"
+
+- name: add disk
+  add_disk:
+    vcenter_host: "{{ vcenter_server }}"
+    vcenter_user: "{{ vcenter_user }}"
+    vcenter_pass: "{{ vcenter_pass }}"
+    vm_name: "{{ vm_name_fqdn }}"
+    size: "{{ item }}"
+    type: "thin"
+  with_items: "{{ disk_array.split(',') }}"

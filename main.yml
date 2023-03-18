@@ -1,0 +1,19 @@
+---
+- name: VMW Create VM init
+  hosts: localhost
+  vars_files:
+    - vars/global_vars.yml
+    - "vars/cust/{{ customer }}.yml"
+  roles:
+    - { role: check_vars }
+    - { role: vm_create }
+    - { role: vm_add_hw, when: add_hw  }
+  tasks:
+  - name: Set the state of a virtual machine to poweron
+    poweronvm:
+      vcenter_host: "{{ vcenter_server }}"
+      vcenter_user:  "{{ vcenter_user }}"
+      vcenter_pass: "{{ vcenter_pass }}"
+      vm_name: "{{ vm_name_fqdn }}"
+    no_log: True
+    

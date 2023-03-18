@@ -1,0 +1,47 @@
+# check_input_vars.yml
+---
+- name: location vars should be defined input
+  assert:
+    that:
+    - site is defined and site != ''
+    - pod is defined and pod != ''
+    msg: "site or pod input missing"
+
+- name: vm_name should be defined input
+  assert:
+    that:
+    - vm_name is defined and vm_name != ''
+    msg: "Set the value 'vm_name' input."
+  
+- name: vcenter connection variables should be defined
+  assert:
+    that:
+    - vcenter_server is defined and vcenter_server != ''
+    - vcenter_user is defined and vcenter_user != ''
+    - vcenter_pass is defined and vcenter_pass != ''
+    msg: "Set the values in input."
+
+- name: vm_cluster should be defined cust vars
+  assert:
+    that:
+    - vm_cluster is defined and vm_cluster != ''
+    msg: "Set the value 'vm_cluster' cust vars."
+
+- name: vm_folder should be defined cust vars
+  assert:
+    that:
+    - vm_folder is defined and vm_folder != ''
+    msg: "Set the value 'vm_folder' cust vars."
+
+- name: eth0_network should be defined as input
+  assert:
+    that:
+    - eth0_network is defined and eth0_network != ''
+    msg: "Set the value 'eth0_network' input."
+
+- name: vm_template should be defined as input
+  assert:
+    that:
+    - vm_template is defined and vm_template != ''
+    msg: "Set the value 'vm_template' input."
+

@@ -1,0 +1,7 @@
+# check_disk_array.yml
+---
+- name: is disk_array defined
+  assert:
+    that:
+    - add_disk_array is defined
+    msg: "Set the value 'add_disk_array' input."

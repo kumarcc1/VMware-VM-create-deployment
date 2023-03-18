@@ -1,0 +1,65 @@
+#need to be changed needs to be improved
+- name: safety check that input not contains illeagal characters
+  set_fact:
+    disk_array: "{{ add_disk_array | regex_replace(' ') }}"
+
+#workaround since 2.2 was buggy, should work without this in 2.4
+- name: Get correct portgroup name based on vlanid
+  getpg:
+    vcenter_host: "{{ vcenter_server }}"
+    vcenter_user: "{{ vcenter_user }}"
+    vcenter_pass: "{{ vcenter_pass }}"
+    dvs_name: "{{ prod_dvs }}"
+    pg_vlanid: "{{ eth0_network }}"
+  register: pg
+  no_log: true
+- debug: var=pg
+
+- name: set portgroup fact
+  set_fact:
+    pg_name: "{{ pg.meta.name }}"
+
+#Workaround since vmware_guest module cluster select is broken
+- name: Get random host in selected cluster
+  gethost:
+    vcenter_host: "{{ vcenter_server }}"
+    vcenter_user: "{{ vcenter_user }}"
+    vcenter_pass: "{{ vcenter_pass }}"
+    cluster_name: "{{ vm_cluster }}"
+  register: esxihost
+  no_log: True
+- debug: var=esxihost
+
+- name: set hostname fact
+  set_fact:
+    vm_esxi_hostname: "{{ esxihost.meta.name }}"
+
+- name: Create VM from template no static ip or join domain
+  vmware_guest:
+    validate_certs: false
+    hostname: "{{ vcenter_server }}"
+    username: "{{ vcenter_user }}"
+    password: "{{ vcenter_pass }}"
+    esxi_hostname: "{{ vm_esxi_hostname }}"
+    datacenter: "{{ vm_datacenter }}"
+    name: "{{ vm_name_fqdn }}"
+    template: "{{ vm_template }}"
+    folder: "{{ vm_folder |default('/') }}"
+    annotation: "{{ vm_note }}"
+    networks:
+    - name: "{{ pg_name }}"
+      type: dhcp
+    customization:
+      autologon: yes
+      hostname: "{{ vm_name }}"
+      password: "pass"
+      runonce:
+      - powershell.exe -ExecutionPolicy Unrestricted -command C:\Temp\Script\00_init.ps1 "{{ customer }}"
+    hardware:
+      num_cpus: "{{ vm_cpu_num | default(1) }}"
+      memory_mb: "{{ vm_memory | default(1024) }}"
+    disk:
+      - size_gb: "{{disk1_size | default(50) }}"
+        type: "thin"
+        datastore: "{{ datastore }}"
+  register: deploy
